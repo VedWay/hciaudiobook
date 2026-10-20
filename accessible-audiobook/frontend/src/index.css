@@ -1,0 +1,259 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Every theme meets WCAG AAA (7:1) for body text and at least
+ * 3:1 for control borders. State is never conveyed by colour alone: each state
+ * colour is paired with an icon and a text label.
+ */
+:root,
+:root[data-theme="dark"] {
+  /* Midnight: deep blue-black with a periwinkle accent, instead of harsh yellow on black. */
+  --bg: #0c1020;
+  --surface: #141a30;
+  --raised: #1e2745;
+  --fg: #f5f7ff;
+  --muted: #c5cde6;
+  --line: #8591b8;
+  --line-soft: #34406a; /* decorative edges only (cards); anything interactive uses --line */
+  --accent: #8fb4ff;
+  --on-accent: #0a1030;
+  --focus: #ffd666;
+  --reading: #6ee7a8;
+  --listening: #ff94b0;
+  --thinking: #ffd666;
+  --answering: #5eead4;
+  --danger: #ff8f85;
+  /* Chart series (validated for colour-blind separation on --surface). */
+  --series-a: #3987e5;
+  --series-b: #d95926;
+}
+
+/* Yellow on black: a long-established low-vision scheme. One colour, so states differ by icon, label and border style. */
+:root[data-theme="yellow"] {
+  --bg: #000000;
+  --surface: #000000;
+  --raised: #141400;
+  --fg: #ffe600;
+  --muted: #ffe600;
+  --line: #ffe600;
+  --line-soft: #ffe600;
+  --accent: #ffe600;
+  --on-accent: #000000;
+  --focus: #ffffff;
+  --reading: #ffe600;
+  --listening: #ffe600;
+  --thinking: #ffe600;
+  --answering: #ffe600;
+  --danger: #ffe600;
+  --series-a: #ffe600;
+  --series-b: #ffe600;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfcff;
+  --surface: #f0f3fb;
+  --raised: #e3e8f5;
+  --fg: #0d1224;
+  --muted: #38405a;
+  --line: #5b6585;
+  --line-soft: #c3cbe0;
+  --accent: #1a3fb5;
+  --on-accent: #ffffff;
+  --focus: #be185d;
+  --reading: #0a5c2c;
+  --listening: #96002f;
+  --thinking: #6b4200;
+  --answering: #0a5478;
+  --danger: #9f1f18;
+  --series-a: #2a78d6;
+  --series-b: #c2410c;
+}
+
+@theme inline {
+  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+}
+
+/*
+ * Element defaults and component classes live in cascade layers so that a
+ * Tailwind utility on the same element (text-left, border-accent, font-normal)
+ * always wins over them, as utilities are meant to.
+ */
+@layer base {
+  html {
+    /* 18px base, multiplied by the user's text-size preference; everything else is in rem. */
+    font-size: calc(112.5% * var(--font-scale, 1));
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  h1, h2, h3 { line-height: 1.2; font-weight: 700; text-wrap: balance; }
+
+  /* A thick, high-contrast focus ring on everything: keyboard users must always know where they are. */
+  :focus-visible {
+    outline: 0.25rem solid var(--focus);
+    outline-offset: 0.2rem;
+    border-radius: 0.5rem;
+  }
+
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 0.2em; }
+  :root[data-theme="yellow"] a { text-decoration-thickness: 0.15em; }
+
+  input[type="radio"], input[type="checkbox"] { width: 1.5rem; height: 1.5rem; accent-color: var(--accent); flex: none; }
+  input[type="range"] { width: 100%; height: 2.5rem; accent-color: var(--accent); }
+
+  dialog {
+    width: min(52rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem);
+    margin: auto; /* the reset removes the browser's own centring of modal dialogs */
+    padding: 1.5rem; background: var(--surface); color: var(--fg);
+    border: 0.2rem solid var(--fg); border-radius: 1.25rem;
+  }
+  dialog::backdrop { background: rgb(0 0 0 / 0.75); }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute; left: 1rem; top: -10rem; z-index: 50;
+    padding: 0.75rem 1.25rem; background: var(--accent); color: var(--on-accent);
+    font-weight: 700; border-radius: 0.75rem;
+  }
+  .skip-link:focus { top: 1rem; }
+
+  /* --- Controls ---------------------------------------------------------- */
+
+  .btn {
+    display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.4rem 0.6rem;
+    min-width: 0; min-height: 3.5rem; padding: 0.7rem 1.2rem;
+    background: var(--raised); color: var(--fg);
+    border: 0.125rem solid var(--line); border-radius: 0.9rem;
+    font: inherit; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .btn:hover { border-color: var(--fg); background: color-mix(in srgb, var(--raised) 82%, var(--fg)); }
+  .btn:active { transform: translateY(1px); }
+  .btn[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn[aria-disabled="true"], .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  /* "You are here": marked by an underline as well as the accent border, never by colour alone. */
+  .btn[aria-current] { border-color: var(--accent); text-decoration: underline; text-decoration-thickness: 0.15em; text-underline-offset: 0.3em; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent); border-color: var(--fg); filter: brightness(1.08); }
+  .btn-xl { min-height: 6.5rem; padding: 1rem 1.25rem; font-size: 1.4rem; border-radius: 1.4rem; gap: 0.4rem 0.8rem; }
+  .btn-quiet { background: transparent; }
+  :root[data-theme="yellow"] .btn { border-width: 0.2rem; }
+
+  .kbd {
+    display: inline-block; min-width: 1.9em; padding: 0.1em 0.45em;
+    border: 0.125rem solid var(--line); border-radius: 0.4rem;
+    font-family: ui-monospace, monospace; font-size: 0.85em; font-weight: 700; text-align: center; line-height: 1.4;
+  }
+  .btn-primary .kbd, .btn[aria-pressed="true"] .kbd { border-color: currentColor; }
+
+  .card {
+    background: var(--surface);
+    border: 0.125rem solid var(--line-soft);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  .field {
+    width: 100%; min-height: 3.5rem; padding: 0.7rem 1rem;
+    background: var(--bg); color: var(--fg);
+    border: 0.125rem solid var(--line); border-radius: 0.9rem;
+    font: inherit;
+  }
+  .field::placeholder { color: var(--muted); opacity: 1; }
+
+  /* --- Status orb: the one glanceable indicator of what the system is doing --- */
+
+  .orb {
+    --tone: var(--muted);
+    position: relative; display: grid; place-items: center; flex: none;
+    width: 7.5rem; height: 7.5rem; border-radius: 50%;
+    color: var(--tone); border: 0.35rem solid var(--tone); background: var(--surface);
+  }
+  .orb[data-tone="reading"] { --tone: var(--reading); }
+  .orb[data-tone="listening"] { --tone: var(--listening); border-style: double; border-width: 0.6rem; }
+  .orb[data-tone="thinking"] { --tone: var(--thinking); border-style: dashed; }
+  .orb[data-tone="answering"] { --tone: var(--answering); }
+  .orb[data-tone="danger"] { --tone: var(--danger); border-style: dotted; }
+
+  .orb::after {
+    content: ""; position: absolute; inset: -0.35rem; border-radius: 50%;
+    border: 0.2rem solid var(--tone); opacity: 0;
+  }
+  .orb[data-tone="reading"]::after { animation: orb-breathe 2.4s ease-in-out infinite; }
+  .orb[data-tone="listening"]::after { animation: orb-ripple 1.2s ease-out infinite; }
+  .orb[data-tone="answering"]::after { animation: orb-ripple 1.8s ease-out infinite; }
+  .orb[data-tone="thinking"] { animation: orb-spin 4s linear infinite; }
+  .orb[data-tone="thinking"] > * { animation: orb-spin 4s linear infinite reverse; }
+
+  .meter { height: 1rem; background: var(--raised); border: 0.125rem solid var(--line); border-radius: 999px; overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: var(--accent); transition: width 0.3s linear; }
+
+  /* The sentence being read, with the current word marked. */
+  .now-word { background: var(--accent); color: var(--on-accent); border-radius: 0.3em; padding: 0 0.15em; box-decoration-break: clone; }
+  .spoken { text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.25em; }
+
+  /* --- Evaluation charts: System A vs System B ----------------------------- */
+
+  .bar-track { position: relative; height: 0.9rem; border-left: 0.125rem solid var(--line); }
+  .bar { display: block; height: 100%; min-width: 0.125rem; border-radius: 0 0.25rem 0.25rem 0; }
+  .bar[data-series="A"] { background: var(--series-a); }
+  .bar[data-series="B"] { background: var(--series-b); }
+  /* One-colour theme: tell the series apart by fill style, not hue. */
+  :root[data-theme="yellow"] .bar[data-series="A"] { background: transparent; border: 0.15rem solid var(--series-a); border-left: 0; }
+  .swatch { display: inline-block; width: 1rem; height: 1rem; border-radius: 0.2rem; vertical-align: -0.1em; margin-right: 0.4rem; }
+  .bar-row { position: relative; }
+  .bar-row .tip {
+    display: none; position: absolute; z-index: 5; left: 6rem; top: 100%;
+    padding: 0.4rem 0.7rem; background: var(--bg); color: var(--fg);
+    border: 0.125rem solid var(--fg); border-radius: 0.6rem; white-space: nowrap; font-size: 0.9rem;
+  }
+  .bar-row:hover .tip, .bar-row:focus-visible .tip { display: block; }
+}
+
+@keyframes orb-breathe { 0%, 100% { opacity: 0; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.12); } }
+@keyframes orb-ripple { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.22); } }
+@keyframes orb-spin { to { transform: rotate(360deg); } }
+
+/* --- Preferences that must override everything, so they stay outside the layers --- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation: none !important; transition: none !important; scroll-behavior: auto !important;
+  }
+}
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+
+/* Windows High Contrast / forced colours: keep boundaries, fills and states visible. */
+@media (forced-colors: active) {
+  .meter > span { background: Highlight; }
+  .now-word { outline: 0.15em solid Highlight; }
+  .btn[aria-pressed="true"] { outline: 0.2rem solid Highlight; }
+  .bar[data-series="A"] { background: Canvas; border: 0.15rem solid CanvasText; }
+  .bar[data-series="B"] { background: CanvasText; }
+}

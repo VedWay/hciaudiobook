@@ -1,0 +1,27 @@
+# Web API
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+python-multipart>=0.0.9
+
+# Persistence
+SQLAlchemy>=2.0.30
+
+# Document processing
+PyMuPDF>=1.24
+
+# Vector database
+qdrant-client>=1.10
+numpy>=1.26
+
+# Natural voices (no API key; needs internet). Optional: without it the browser voices are used.
+edge-tts>=7.0
+
+# Security
+PyJWT>=2.8
+
+# Providers (imported lazily; only needed when the matching API key is set)
+httpx>=0.27
+google-genai>=1.0
+openai>=1.40

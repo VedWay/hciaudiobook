@@ -1,0 +1,33 @@
+# docker compose up --build   ->  http://localhost:8080
+# The microphone works on http://localhost. On any other host name, serve over HTTPS.
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - path: backend/.env
+        required: false
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      DATA_DIR: /data
+    volumes:
+      - app_data:/data
+    depends_on:
+      - qdrant
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  qdrant_data:
+  app_data:
